@@ -1,0 +1,22 @@
+<div class="pad">
+  {
+    [...Array(10)].map((item, index) => (
+      <div class="pad-number">{(index + 1) % 10}</div>
+    ))
+  }
+</div>
+
+<style>
+  .pad {
+    @apply content-end flex flex-wrap font-number items-center justify-around mt-4 mx-0;
+  }
+
+  .pad-number {
+    @apply border-gray-600 border-2 cursor-pointer leading-normal font-normal h-18 m-2 relative rounded-full select-none text-center text-5xl w-18;
+  }
+
+  .pad-number.hover,
+  .pad-number:hover {
+    @apply border-gray-400 text-gray-400;
+  }
+</style>

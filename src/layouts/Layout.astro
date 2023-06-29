@@ -1,0 +1,61 @@
+---
+import { GoogleFontsOptimizer } from 'astro-google-fonts-optimizer';
+import { SEO } from 'astro-seo';
+
+export interface Props {
+  description: string;
+  title: string;
+}
+
+const { description, title } = Astro.props;
+---
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <meta name="generator" content={Astro.generator} />
+
+    <SEO
+      title={title}
+      description={description}
+      twitter={{
+        creator: '@inigochoa'
+      }}
+      extend={{
+        link: [{ rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' }],
+      }}
+    />
+    <GoogleFontsOptimizer url="https://fonts.googleapis.com/css2?family=Karla:wght@400;700&family=Qahiri&display=swap" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+  </head>
+  <body class="bg-blue-500 font-text h-screen text-gray-900">
+    <slot />
+  </body>
+</html>
+<style is:global>
+  body.correct {
+    animation: body-correct 1s ease-in;
+  }
+
+  body.wrong {
+    animation: body-wrong 1s ease-in;
+  }
+
+  svg {
+      @apply fill-zinc-800 h-9 w-9;
+    }
+
+  @keyframes body-correct {
+    50% {
+      @apply bg-green-500;
+    }
+  }
+
+  @keyframes body-wrong {
+    50% {
+      @apply bg-red-500;
+    }
+  }
+</style>

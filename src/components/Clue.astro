@@ -1,0 +1,32 @@
+---
+const {length} = Astro.props;
+const numbers = [...Array(length)];
+---
+
+<div class="clue">
+  {
+    numbers.map((item, index) => (
+      <div class="clue-number" id={`clue-number-${index + 1}`}></div>
+    ))
+  }
+
+  <div class="clue-hider show" id="clue-hider"></div>
+</div>
+
+<style>
+  .clue {
+    @apply bg-zinc-800 border-gray-600 border-t border-x content-end flex font-number justify-around mx-auto relative rounded-t-md shadow-lg text-gray-600 w-60;
+  }
+
+  .clue-hider {
+    @apply absolute bg-zinc-800 border-gray-600 border-t duration-1000 h-full transition-transform translate-y-2/4 w-full z-10;
+  }
+
+  .clue-hider.show {
+    @apply translate-y-full;
+  }
+
+  .clue-number {
+    @apply font-normal h-10 m-2 rounded-full select-none text-center text-4xl w-10;
+  }
+</style>

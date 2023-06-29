@@ -1,0 +1,24 @@
+---
+const items = [
+  { id: 'streak', text: 'STREAK' },
+  { id: 'highscore', text: 'HIGHSCORE' },
+];
+---
+
+<div class="score">
+  {
+    items.map((item) => (
+      <p>{item.text}: <span id={item.id}></span></p>
+    ))
+  }
+</div>
+
+<style>
+  .score {
+    @apply flex flex-row justify-between text-gray-800 w-80;
+  }
+
+  .score > p {
+    @apply text-base sm:text-lg;
+  }
+</style>
