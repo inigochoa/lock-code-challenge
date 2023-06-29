@@ -10,6 +10,9 @@ module.exports = {
 			fontSize: {
 				'4.5xl': '2.675rem',
 			},
+			lineHeight: {
+				'under': '0.75',
+			},
 			scale: {
 				'25': '0.25',
 			},
