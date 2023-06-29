@@ -167,8 +167,8 @@ const length = 3;
     displayNumberList = Array(length);
     lockNumberList = Array(length);
 
-    streak.innerHTML = window.localStorage.getItem('streak');
-    highscore.innerHTML = window.localStorage.getItem('highscore');
+    streak.innerHTML = window.localStorage.getItem('streak') || '0';
+    highscore.innerHTML = window.localStorage.getItem('highscore') || '0';
 
     body.classList.remove('correct');
     body.classList.remove('wrong');
@@ -196,7 +196,7 @@ const length = 3;
   }
 
   function updateStreakValue(streakValue) {
-    let highscoreValue = parseInt(window.localStorage.getItem('highscore'));
+    let highscoreValue = parseInt(window.localStorage.getItem('highscore')) || 0;
     highscoreValue = Math.max(streakValue, highscoreValue);
 
     window.localStorage.setItem('streak', streakValue.toString());
