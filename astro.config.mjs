@@ -7,6 +7,5 @@ import tailwind from "@astrojs/tailwind";
 // https://astro.build/config
 export default defineConfig({
   integrations: [robotsTxt(), sitemap(), tailwind()],
-  site: 'https://inigochoa.github.io',
-  base: '/lock-code-challenge',
+  site: 'https://wallpapers.inigochoa.me/',
 });
