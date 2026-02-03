@@ -1,6 +1,13 @@
 ---
+import type { Site } from '@/types/site'
 import FooterButton from '@/components/FooterButton.astro'
 import { t } from '@/i18n/utils'
+
+export interface Props {
+  site: Site
+}
+
+const { site } = Astro.props;
 ---
 
 <footer class="flex gap-8 justify-center mt-4">
@@ -18,5 +25,13 @@ import { t } from '@/i18n/utils'
     icon="help"
     id="btn-help"
     title={t('button.help')}
+  />
+
+  <FooterButton
+    color="bg-gray-300"
+    hoverColor="hover:bg-gray-400"
+    href={site.repository}
+    icon="github"
+    title={t('button.github')}
   />
 </footer>

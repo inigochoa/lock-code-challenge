@@ -7,7 +7,7 @@ const { length } = Astro.props;
 const numbers = [...Array(length)];
 ---
 
-<div class="flex font-number justify-around p-4 pt-8 w-1/2">
+<div class="flex font-number justify-around p-4 pt-4 md:pt-8 w-1/2">
   {numbers.map((item, index) => (
     <div
       class="bg-gray-500 display-number h-10 leading-[0.75] relative rounded-xl scale-25 select-none text-center text-5xl w-10"

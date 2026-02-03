@@ -5,6 +5,7 @@ export interface Props {
   class?: string
   color?: string
   hoverColor?: string
+  href?: string
   icon: string
   id?: string
   title: string
@@ -14,24 +15,31 @@ const {
   class: className = '',
   color = 'bg-gray-500',
   hoverColor = 'hover:bg-gray-600',
+  href,
   icon,
   id,
   title,
 } = Astro.props
+
+const classes = [
+  'cursor-pointer h-9 rounded-md shadow-md w-9 inline-flex items-center justify-center p-1',
+  color,
+  hoverColor,
+  className
+]
+
+const Element = href ? 'a' : 'button'
+const linkProps = href ? { href, target: '_blank', rel: 'noopener noreferrer' } : {}
 ---
 
-<button
-  class:list={[
-    'cursor-pointer h-9 rounded-md shadow-md w-9',
-    color,
-    hoverColor,
-    className
-  ]}
+<Element
+  class:list={classes}
   id={id}
   title={title}
+  {...linkProps}
 >
   <Icon
     class="fill-zinc-800 h-9 w-9"
     name={icon}
   />
-</button>
+</Element>
