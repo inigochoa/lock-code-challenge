@@ -1,64 +1,33 @@
 ---
-const {length} = Astro.props;
+export interface Props {
+  length: number
+}
+
+const { length } = Astro.props;
 const numbers = [...Array(length)];
 ---
 
-<div class="display">
-  {
-    numbers.map((item, index) => (
-      <div class="display-number" id={`display-number-${index + 1}`}></div>
-    ))
-  }
+<div class="flex font-number justify-around p-4 pt-8 w-1/2">
+  {numbers.map((item, index) => (
+    <div
+      class="bg-gray-500 display-number h-10 leading-[0.75] relative rounded-xl scale-25 select-none text-center text-5xl w-10"
+      id={`display-number-${index + 1}`}
+    ></div>
+  ))}
 </div>
 
 <style>
-  .display {
-    @apply flex font-number justify-around p-4 pt-8 w-1/2;
-  }
-
-  .display-number {
-    @apply bg-gray-500 h-10 leading-under relative rounded-xl scale-25 select-none text-center text-5xl w-10;
-  }
+  @reference "../styles/global.css";
 
   .display-number.filled {
     @apply bg-transparent rounded-none scale-100;
   }
 
   .display-number.filled.correct {
-    animation: display-number-correct .9s ease;
+    @apply animate-number-correct;
   }
 
   .display-number.filled.wrong {
-    animation: display-number-wrong .9s ease;
-  }
-
-  @keyframes display-number-correct {
-    20% {
-      @apply text-green-500;
-    }
-    40% {
-      transform: translate(0, -15px);
-    }
-    60% {
-      transform: translate(0, 10px);
-    }
-    80% {
-      transform: translate(0, -5px);
-    }
-  }
-
-  @keyframes display-number-wrong {
-    20% {
-      @apply text-red-500;
-    }
-    40% {
-      transform: translate(-15px, 0);
-    }
-    60% {
-      transform: translate(10px, 0);
-    }
-    80% {
-      transform: translate(-5px, 0);
-    }
+    @apply animate-number-wrong;
   }
 </style>

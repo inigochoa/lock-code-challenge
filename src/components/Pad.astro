@@ -1,19 +1,13 @@
-<div class="pad">
+<div class="content-end flex flex-wrap font-number items-center justify-around mt-4 mx-0">
   {
     [...Array(10)].map((item, index) => (
-      <div class="pad-number">{(index + 1) % 10}</div>
+      <div class="pad-number border-gray-500 border-2 cursor-pointer leading-normal font-normal h-18 m-2 relative rounded-full select-none text-center text-5xl w-18">{(index + 1) % 10}</div>
     ))
   }
 </div>
 
 <style>
-  .pad {
-    @apply content-end flex flex-wrap font-number items-center justify-around mt-4 mx-0;
-  }
-
-  .pad-number {
-    @apply border-gray-500 border-2 cursor-pointer leading-normal font-normal h-18 m-2 relative rounded-full select-none text-center text-5xl w-18;
-  }
+  @reference "../styles/global.css";
 
   .pad-number.hover,
   .pad-number:hover {

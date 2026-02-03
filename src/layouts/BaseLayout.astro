@@ -1,0 +1,30 @@
+---
+import type { Frontmatter } from '@/types/site'
+import Head from '@/components/Head.astro'
+import { author } from '@/data/author'
+import { site } from '@/data/site'
+
+export interface Props {
+  frontmatter: Frontmatter
+}
+
+const { frontmatter } = Astro.props
+---
+
+<!doctype html>
+<html
+  lang={site.locale}
+  dir="ltr"
+>
+  <head>
+    <Head
+      author={author}
+      frontmatter={frontmatter}
+      site={site}
+    />
+  </head>
+
+  <body class={`bg-blue-400 font-sans h-screen text-gray-900 ${import.meta.env.DEV ? 'debug-screens' : ''}`}>
+    <slot />
+  </body>
+</html>

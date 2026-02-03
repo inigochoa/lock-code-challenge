@@ -1,21 +1,27 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Header from '../components/Header.astro';
-import Clue from '../components/Clue.astro';
-import Display from '../components/Display.astro';
-import Pad from '../components/Pad.astro';
-import Footer from '../components/Footer.astro';
-import Dialog from '../components/Dialog.astro';
+import type { Frontmatter } from '@/types/site'
+import GameLayout from '@/layouts/GameLayout.astro'
+import Header from '@/components/Header.astro'
+import Clue from '@/components/Clue.astro'
+import Display from '@/components/Display.astro'
+import Pad from '@/components/Pad.astro'
+import Footer from '@/components/Footer.astro'
+import Dialog from '@/components/Dialog.astro'
+import { t } from '@/i18n/utils'
+import { site } from '@/data/site'
 
-const length = 3;
+const frontmatter: Frontmatter = {
+  description: t('index.description'),
+  title: t('index.title'),
+  schemas: ['site', 'game'],
+}
+
+const length = 3
 ---
 
-<Layout
-  description="Lock Code Challenge Website #LockCodeChallenge"
-  title="Lock Code Challenge"
->
+<GameLayout frontmatter={frontmatter}>
   <main class="h-full w-full" data-length={length}>
-    <Header title="Lock Code Challenge" />
+    <Header title={site.name} />
 
 		<section class="container mx-auto">
       <Clue length={length} />
@@ -29,182 +35,258 @@ const length = 3;
 		</section>
 
     <Dialog id="modal-help">
-      <p class="font-bold mb-3 text-xl w-full">How to play</p>
-      <p class="mb-2">Guess the {length}-digit code by seeing only a small part.</p>
-      <p class="mb-2">Use the pad or the keyboard to input numbers.</p>
-      <p class="mb-2">Press <b>R</b> to reset the game.</p>
-      <p class="mb-2">Press <b>H</b> for instructions.</p>
+      <p class="font-bold mb-3 text-xl w-full">{t('dialog.title')}</p>
+      <p class="mb-2" set:html={t('dialog.line1', { length })}></p>
+      <p class="mb-2" set:html={t('dialog.line2')}></p>
+      <p class="mb-2" set:html={t('dialog.line3')}></p>
+      <p class="mb-2" set:html={t('dialog.line4')}></p>
     </Dialog>
 	</main>
-</Layout>
+</GameLayout>
+
+<style>
+  @reference "../styles/global.css";
+
+  body.correct {
+    @apply animate-body-correct;
+  }
+
+  body.wrong {
+    @apply animate-body-wrong;
+  }
+
+  svg {
+    @apply fill-zinc-800 h-9 w-9;
+  }
+</style>
 
 <script>
-  const length = parseInt(document.querySelector('main').dataset.length) || 3;
-  const body = document.querySelector('body');
-  const streak = document.getElementById('streak');
-  const highscore = document.getElementById('highscore');
-  const clueHider = document.getElementById('clue-hider');
-  const displayNumbers = document.querySelectorAll('.display-number');
-  const numberClues = document.querySelectorAll('.clue-number');
-  const padNumbers = document.querySelectorAll('.pad-number');
-  const helpButton = document.getElementById('btn-help');
-  const restartButton = document.getElementById('btn-restart');
-  const helpModal = document.getElementById('modal-help');
+  // ============================================================================
+  // Constants & DOM Elements
+  // ============================================================================
+  const GAME_LENGTH = parseInt(document.querySelector('main')!.dataset.length!) || 3
+  const HOVER_DURATION = 300
+  const CLUE_ANIMATION_DURATION = 1000
+  const STORAGE_KEYS = {
+    STREAK: 'streak',
+    HIGHSCORE: 'highscore',
+  } as const
 
-  let win = false;
-  let ended = false;
-  let displayNumberList = Array(length);
-  let lockNumberList = Array(length);
+  // DOM Elements
+  const body = document.querySelector('body')!
+  const streak = document.getElementById('streak')!
+  const highscore = document.getElementById('highscore')!
+  const clueHider = document.getElementById('clue-hider')!
+  const displayNumbers = document.querySelectorAll<HTMLElement>('.display-number')
+  const numberClues = document.querySelectorAll<HTMLElement>('.clue-number')
+  const padNumbers = document.querySelectorAll<HTMLElement>('.pad-number')
+  const helpButton = document.getElementById('btn-help')!
+  const restartButton = document.getElementById('btn-restart')!
+  const helpModal = document.getElementById('modal-help') as HTMLDialogElement
 
-  padNumbers.forEach((numberButton) => numberButton.addEventListener('click', () => doDisplayNumber(numberButton.innerHTML)));
-  document.addEventListener('keydown', keyboard);
-  helpButton.addEventListener('click', help);
-  restartButton.addEventListener('click', restart);
-
-  function keyboard(event) {
-    if (event.ctrlKey) {
-      return;
-    }
-
-    switch (event.key) {
-      case '1': case '2':
-      case '3': case '4':
-      case '5': case '6':
-      case '7': case '8':
-      case '9': case '0':
-        const number = parseInt(event.key);
-        triggerHover(number);
-        doDisplayNumber(number);
-        break;
-      case 'i': case 'I':
-      case 'h': case 'H':
-        help();
-        break;
-      case 'r': case 'R':
-      case 's': case 'S':
-      case ' ':
-        restart();
-        break;
-    }
+  // ============================================================================
+  // Game State
+  // ============================================================================
+  type GameState = {
+    win: boolean
+    ended: boolean
+    displayNumbers: (number | undefined)[]
+    lockNumbers: (number | undefined)[]
   }
 
-  function triggerHover(number) {
-    let index = (0 === number) ? 9 : number - 1;
-    let padNumber = padNumbers[index];
-    padNumber.classList.add('hover');
-
-    setTimeout(() => padNumber.classList.remove('hover'), 300);
+  let state: GameState = {
+    win: false,
+    ended: false,
+    displayNumbers: Array(GAME_LENGTH),
+    lockNumbers: Array(GAME_LENGTH),
   }
 
-  function doDisplayNumber(number) {
-    if (ended) {
-      return;
-    }
-
-    let index = displayNumberList.findIndex((item: any) => undefined === item);
-    if (-1 === index) {
-      return;
-    }
-
-    displayNumberList[index] = number;
-
-    let displayNumber = document.querySelector(`#display-number-${index + 1}`);
-    displayNumber.innerHTML = number;
-    displayNumber.classList.add('filled');
-
-    if (length === (index + 1)) {
-      check();
-    }
+  // ============================================================================
+  // Storage Helpers
+  // ============================================================================
+  const storage = {
+    get: (key: string) => parseInt(localStorage.getItem(key) || '0'),
+    set: (key: string, value: number) => localStorage.setItem(key, value.toString()),
   }
 
-  function check() {
-    ended = true;
+  // ============================================================================
+  // UI Updates
+  // ============================================================================
+  function updateScoreDisplay(): void {
+    streak.textContent = storage.get(STORAGE_KEYS.STREAK).toString()
+    highscore.textContent = storage.get(STORAGE_KEYS.HIGHSCORE).toString()
+  }
 
-    clueHider.classList.add('show');
+  function updateStreak(value: number): void {
+    const currentHighscore = storage.get(STORAGE_KEYS.HIGHSCORE)
+    const newHighscore = Math.max(value, currentHighscore)
 
-    const displayNumber = displayNumberList.join('');
-    const lockNumber = lockNumberList.join('');
+    storage.set(STORAGE_KEYS.STREAK, value)
+    storage.set(STORAGE_KEYS.HIGHSCORE, newHighscore)
+    updateScoreDisplay()
+  }
 
-    if (displayNumber !== lockNumber) {
-      body.classList.add('wrong');
-      displayNumbers.forEach((displayNumber) => displayNumber.classList.add('wrong'));
+  function resetDisplay(): void {
+    displayNumbers.forEach((el) => {
+      el.textContent = ''
+      el.classList.remove('filled', 'correct', 'wrong')
+    })
+    numberClues.forEach((el) => (el.textContent = ''))
+  }
 
-      updateStreakValue(0);
+  function resetBodyClasses(): void {
+    body.classList.remove('correct', 'wrong')
+  }
 
-      return;
+  // ============================================================================
+  // Game Logic
+  // ============================================================================
+  function getNextEmptyIndex(): number {
+    return state.displayNumbers.findIndex((n) => n === undefined)
+  }
+
+  function addNumber(num: number): void {
+    if (state.ended) return
+
+    const index = getNextEmptyIndex()
+    if (index === -1) return
+
+    state.displayNumbers[index] = num
+
+    const displayEl = document.querySelector<HTMLElement>(`#display-number-${index + 1}`)
+    if (displayEl) {
+      displayEl.textContent = num.toString()
+      displayEl.classList.add('filled')
     }
 
-    win = true;
-    body.classList.add('correct');
-    displayNumbers.forEach((displayNumber) => displayNumber.classList.add('correct'));
-
-    let streakValue = parseInt(window.localStorage.getItem('streak'));
-    updateStreakValue(streakValue + 1);
-  }
-
-  function help() {
-    helpModal.showModal();
-  }
-
-  function restart() {
-    let streakValue = parseInt(window.localStorage.getItem('streak'));
-
-    if (0 < streakValue && !win && !confirm('Are you sure? You will lose your current streak')) {
-      return;
-    }
-
-    if (!win) {
-      streakValue = 0;
-    }
-
-    updateStreakValue(streakValue);
-    start();
-  }
-
-  function start() {
-    win = false;
-    ended = false;
-    displayNumberList = Array(length);
-    lockNumberList = Array(length);
-
-    streak.innerHTML = window.localStorage.getItem('streak') || '0';
-    highscore.innerHTML = window.localStorage.getItem('highscore') || '0';
-
-    body.classList.remove('correct');
-    body.classList.remove('wrong');
-    clueHider.classList.remove('show');
-
-    displayNumbers.forEach((displayNumber) => {
-      displayNumber.innerHTML = '';
-      displayNumber.classList.remove('filled');
-      displayNumber.classList.remove('correct');
-      displayNumber.classList.remove('wrong');
-    });
-    numberClues.forEach((item) => item.innerHTML = '');
-
-    let interval = setInterval(randomNumber, 50);
-    setTimeout(() => clearInterval(interval), 1000);
-  }
-
-  function randomNumber() {
-    for (let index = 0; index < length; index++) {
-      const number = Math.floor(Math.random() * 10);
-
-      lockNumberList[index] = number;
-      document.querySelector(`#clue-number-${index + 1}`).innerHTML = number.toString();
+    if (index + 1 === GAME_LENGTH) {
+      checkAnswer()
     }
   }
 
-  function updateStreakValue(streakValue) {
-    let highscoreValue = parseInt(window.localStorage.getItem('highscore')) || 0;
-    highscoreValue = Math.max(streakValue, highscoreValue);
+  function checkAnswer(): void {
+    state.ended = true
+    clueHider.classList.add('show')
 
-    window.localStorage.setItem('streak', streakValue.toString());
-    window.localStorage.setItem('highscore', highscoreValue.toString());
+    const userCode = state.displayNumbers.join('')
+    const lockCode = state.lockNumbers.join('')
 
-    streak.innerHTML = streakValue.toString();
-    highscore.innerHTML = highscoreValue.toString();
+    if (userCode === lockCode) {
+      handleCorrectAnswer()
+    } else {
+      handleWrongAnswer()
+    }
   }
 
-  start();
+  function handleCorrectAnswer(): void {
+    state.win = true
+    body.classList.add('correct')
+    displayNumbers.forEach((el) => el.classList.add('correct'))
+
+    const currentStreak = storage.get(STORAGE_KEYS.STREAK)
+    updateStreak(currentStreak + 1)
+  }
+
+  function handleWrongAnswer(): void {
+    body.classList.add('wrong')
+    displayNumbers.forEach((el) => el.classList.add('wrong'))
+    updateStreak(0)
+  }
+
+  function generateRandomCode(): void {
+    for (let i = 0; i < GAME_LENGTH; i++) {
+      const num = Math.floor(Math.random() * 10)
+      state.lockNumbers[i] = num
+
+      const clueEl = document.querySelector<HTMLElement>(`#clue-number-${i + 1}`)
+      if (clueEl) clueEl.textContent = num.toString()
+    }
+  }
+
+  function startGame(): void {
+    state = {
+      win: false,
+      ended: false,
+      displayNumbers: Array(GAME_LENGTH),
+      lockNumbers: Array(GAME_LENGTH),
+    }
+
+    updateScoreDisplay()
+    resetBodyClasses()
+    resetDisplay()
+    clueHider.classList.remove('show')
+
+    // Animate random numbers for dramatic effect
+    const interval = setInterval(generateRandomCode, 50)
+    setTimeout(() => clearInterval(interval), CLUE_ANIMATION_DURATION)
+  }
+
+  function restartGame(): void {
+    const currentStreak = storage.get(STORAGE_KEYS.STREAK)
+
+    if (currentStreak > 0 && !state.win) {
+      if (!confirm('Are you sure? You will lose your current streak')) {
+        return
+      }
+      updateStreak(0)
+    }
+
+    startGame()
+  }
+
+  function showHelp(): void {
+    helpModal.showModal()
+  }
+
+  // ============================================================================
+  // Input Handlers
+  // ============================================================================
+  function triggerPadHover(num: number): void {
+    const index = num === 0 ? 9 : num - 1
+    const padEl = padNumbers[index]
+
+    padEl.classList.add('hover')
+    setTimeout(() => padEl.classList.remove('hover'), HOVER_DURATION)
+  }
+
+  function handleKeyboard(event: KeyboardEvent): void {
+    if (event.ctrlKey) return
+
+    const key = event.key.toLowerCase()
+
+    // Numbers
+    if (/^[0-9]$/.test(key)) {
+      const num = parseInt(key)
+      triggerPadHover(num)
+      addNumber(num)
+      return
+    }
+
+    // Commands
+    if (key === 'h' || key === 'i') {
+      showHelp()
+    } else if (key === 'r' || key === 's' || key === ' ') {
+      restartGame()
+    }
+  }
+
+  // ============================================================================
+  // Event Listeners
+  // ============================================================================
+  padNumbers.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const num = parseInt(btn.textContent || '0')
+      addNumber(num)
+    })
+  })
+
+  document.addEventListener('keydown', handleKeyboard)
+  helpButton.addEventListener('click', showHelp)
+  restartButton.addEventListener('click', restartGame)
+
+  // ============================================================================
+  // Initialize
+  // ============================================================================
+  showHelp()
+  startGame()
 </script>

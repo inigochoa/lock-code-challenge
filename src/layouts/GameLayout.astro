@@ -1,0 +1,33 @@
+---
+import type { Frontmatter } from '@/types/site'
+import { Icon } from 'astro-icon/components'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+import { site } from '@/data/site'
+import { t } from '@/i18n/utils'
+
+export interface Props {
+  frontmatter: Frontmatter
+}
+
+const { frontmatter } = Astro.props
+---
+
+<BaseLayout
+  frontmatter={frontmatter}
+>
+  <slot />
+
+  <a
+    aria-label={t('button.github')}
+    class="fixed bottom-8 right-8 bg-zinc-800 hover:bg-gray-700 p-3 rounded-full shadow-lg transition-all duration-300 hover:scale-110"
+    href={site.repository}
+    rel="noreferrer noopener"
+    target="_blank"
+    title={t('button.github')}
+  >
+    <Icon
+      class="size-6 text-white"
+      name="github"
+    />
+  </a>
+</BaseLayout>

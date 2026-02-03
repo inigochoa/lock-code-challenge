@@ -1,0 +1,87 @@
+---
+import '@/styles/global.css'
+
+import type { Author } from '@/types/author'
+import type { Frontmatter, Site } from '@/types/site'
+import { Font } from 'astro:assets'
+import { SEO } from 'astro-seo'
+import { gameSchema, siteSchema } from '@/lib/schema'
+
+export interface Props {
+  author: Author
+  frontmatter: Frontmatter
+  site: Site
+}
+
+const { author, frontmatter, site } = Astro.props
+
+const canonicalURL = new URL(Astro.url.pathname, site.url)
+const pageDescription = frontmatter.description || ''
+
+const schemaMap: Record<string, () => any> = {
+  game: () => gameSchema(author, site),
+  site: () => siteSchema(author, frontmatter, site),
+}
+
+const schemas = frontmatter.schemas?.map(type => schemaMap[type]?.()) || []
+---
+
+<SEO
+  canonical={canonicalURL.href}
+  charset='UTF-8'
+  description={pageDescription}
+  title={frontmatter.title}
+  titleTemplate={site.title}
+  extend={{
+    link: [
+      { rel: 'author', href: '/humans.txt' },
+      { rel: 'icon', href: '/favicon.svg', type: 'image/svg+xml' },
+      { rel: 'sitemap', href: '/sitemap-index.xml' },
+    ],
+    meta: [
+      { name: 'author', content: author.name },
+      { name: 'generator', content: Astro.generator },
+      { name: 'viewport', content: 'width=device-width, initial-scale=1.0, viewport-fit=cover' },
+    ],
+  }}
+  openGraph={{
+    basic: {
+      image: `${site.url}/og-image.png`,
+      title: frontmatter.title,
+      type: 'website',
+      url: canonicalURL.href,
+    },
+    image: {
+      height: 800,
+      width: 1600,
+    },
+    optional: {
+      description: pageDescription,
+      locale: `${site.lang}`,
+      siteName: site.name,
+    },
+  }}
+  twitter={{
+    card: 'summary',
+    creator: author.handle,
+    description: pageDescription,
+    title: frontmatter.title,
+  }}
+/>
+
+<Font
+  cssVariable="--font-sans"
+  preload
+/>
+<Font
+  cssVariable="--font-qahiri"
+  preload
+/>
+
+{schemas.map(schema => (
+  <script
+    is:inline
+    set:html={JSON.stringify(schema)}
+    type="application/ld+json"
+  />
+))}

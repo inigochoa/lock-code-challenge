@@ -1,0 +1,34 @@
+---
+import type { Frontmatter } from '@/types/site'
+import BaseLayout from '@/layouts/BaseLayout.astro'
+
+export interface Props {
+  frontmatter: Frontmatter
+}
+
+const { frontmatter } = Astro.props
+---
+
+<BaseLayout
+  frontmatter={frontmatter}
+>
+  <main class="">
+    <slot />
+  </main>
+</BaseLayout>
+
+<style is:global>
+  @reference "../styles/global.css";
+
+  body {
+    @apply flex flex-col items-center justify-center;
+  }
+
+  h1 {
+    @apply font-bold mb-10 text-5xl;
+  }
+
+  p {
+    @apply my-6 text-lg;
+  }
+</style>

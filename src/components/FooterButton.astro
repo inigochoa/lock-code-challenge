@@ -1,0 +1,37 @@
+---
+import { Icon } from 'astro-icon/components'
+
+export interface Props {
+  class?: string
+  color?: string
+  hoverColor?: string
+  icon: string
+  id?: string
+  title: string
+}
+
+const {
+  class: className = '',
+  color = 'bg-gray-500',
+  hoverColor = 'hover:bg-gray-600',
+  icon,
+  id,
+  title,
+} = Astro.props
+---
+
+<button
+  class:list={[
+    'cursor-pointer h-9 rounded-md shadow-md w-9',
+    color,
+    hoverColor,
+    className
+  ]}
+  id={id}
+  title={title}
+>
+  <Icon
+    class="fill-zinc-800 h-9 w-9"
+    name={icon}
+  />
+</button>

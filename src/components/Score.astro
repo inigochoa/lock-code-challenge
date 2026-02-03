@@ -1,24 +1,14 @@
 ---
+import { t } from '@/i18n/utils'
+
 const items = [
-  { id: 'streak', text: 'STREAK' },
-  { id: 'highscore', text: 'HIGHSCORE' },
-];
+  { id: 'streak', text: t('score.streak') },
+  { id: 'highscore', text: t('score.highscore') },
+]
 ---
 
-<div class="score">
-  {
-    items.map((item) => (
-      <p>{item.text}: <span id={item.id}></span></p>
-    ))
-  }
+<div class="flex flex-row justify-between text-gray-800 w-80">
+  {items.map((item) => (
+    <p class="text-base uppercase sm:text-lg">{item.text}: <span id={item.id}></span></p>
+  ))}
 </div>
-
-<style>
-  .score {
-    @apply flex flex-row justify-between text-gray-800 w-80;
-  }
-
-  .score > p {
-    @apply text-base sm:text-lg;
-  }
-</style>

@@ -1,0 +1,68 @@
+@import 'tailwindcss';
+@plugin 'tailwindcss-debug-screens' {
+  position: 'top, left';
+};
+
+@theme {
+  /* Animations */
+  --animate-body-correct: body-correct 1s ease-in;
+  @keyframes body-correct {
+    50% {
+      background-color: var(--color-green-500);
+    }
+  }
+
+  --animate-body-wrong: body-wrong 1s ease-in;
+  @keyframes body-wrong {
+    50% {
+      background-color: var(--color-red-500);
+    }
+  }
+
+  --animate-dialog: dialog-show .5s ease-in-out;
+  @keyframes dialog-show {
+    from {
+      opacity: 0;
+      transform: translateY(-18rem);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  --animate-number-correct: number-correct .9s ease;
+  @keyframes number-correct {
+    20% {
+      color: var(--color-green-500);
+    }
+    40% {
+      transform: translate(0, -15px);
+    }
+    60% {
+      transform: translate(0, 10px);
+    }
+    80% {
+      transform: translate(0, -5px);
+    }
+  }
+
+  --animate-number-wrong: number-wrong .9s ease;
+  @keyframes number-wrong {
+    20% {
+      color: var(--color-red-500);
+    }
+    40% {
+      transform: translate(-15px, 0);
+    }
+    60% {
+      transform: translate(10px, 0);
+    }
+    80% {
+      transform: translate(-5px, 0);
+    }
+  }
+
+  /* Fonts */
+  --font-number: var(--font-qahiri);
+}
