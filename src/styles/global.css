@@ -5,20 +5,6 @@
 
 @theme {
   /* Animations */
-  --animate-body-correct: body-correct 1s ease-in;
-  @keyframes body-correct {
-    50% {
-      background-color: var(--color-green-500);
-    }
-  }
-
-  --animate-body-wrong: body-wrong 1s ease-in;
-  @keyframes body-wrong {
-    50% {
-      background-color: var(--color-red-500);
-    }
-  }
-
   --animate-dialog: dialog-show .5s ease-in-out;
   @keyframes dialog-show {
     from {

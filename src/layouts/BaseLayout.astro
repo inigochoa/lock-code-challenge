@@ -24,7 +24,7 @@ const { frontmatter } = Astro.props
     />
   </head>
 
-  <body class={`bg-blue-400 font-sans h-screen text-gray-900 ${import.meta.env.DEV ? 'debug-screens' : ''}`}>
+  <body class:list={['font-sans lg:h-screen text-gray-900', { 'debug-screens': import.meta.env.DEV }]}>
     <slot />
   </body>
 </html>
